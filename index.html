@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MON CHER — My Digital Wardrobe</title>
+<style>
+:root {
+  --bg:#17130f; --panel:#211b16; --panel2:#2b231b;
+  --gold:#c9a66b; --cream:#f2e8d9; --muted:#ad9d8b;
+  --line:#44372b; --red:#793b3b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--cream);
+  font-family:Georgia,"Times New Roman",serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+header{padding:30px 6%;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;gap:15px}
+.logo{font-size:30px;letter-spacing:7px;color:var(--gold)}
+.subtitle{font:11px Arial,sans-serif;letter-spacing:3px;color:var(--muted);margin-top:8px}
+main{max-width:1200px;margin:auto;padding:28px 5% 60px}
+h1{font-size:clamp(27px,4vw,43px);font-weight:400;margin:10px 0}
+h2{font-weight:400;font-size:23px}
+p{line-height:1.6}
+.muted{color:var(--muted);font:13px Arial,sans-serif;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:25px 0}
+.stat,.box{border:1px solid var(--line);background:var(--panel);padding:18px}
+.stat span{display:block;color:var(--muted);font:11px Arial,sans-serif;
+  letter-spacing:1px;text-transform:uppercase}
+.stat strong{display:block;color:var(--gold);font-size:27px;margin-top:10px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:25px 0}
+button{background:var(--panel2);color:var(--cream);border:1px solid var(--line);
+  padding:11px 15px}
+button:hover,.active{border-color:var(--gold);color:var(--gold)}
+.primary{background:var(--gold);color:#1a140e;border-color:var(--gold)}
+.primary:hover{background:#e0c18d;color:#1a140e}
+input,select{width:100%;background:#17130f;color:var(--cream);
+  border:1px solid var(--line);padding:12px;min-width:0}
+label{display:block;color:var(--muted);font:12px Arial,sans-serif;margin-bottom:7px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{margin-bottom:14px}
+.full{grid-column:1/-1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.toolbar{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin:20px 0}
+.closet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.item{background:var(--panel);border:1px solid var(--line);min-width:0}
+.photo{height:210px;background:#eee5d7;display:flex;align-items:center;
+  justify-content:center;overflow:hidden;color:#5e4b37}
+.photo img{width:100%;height:100%;object-fit:contain}
+.itembody{padding:12px}
+.itembody h3{font-weight:400;font-size:17px;margin:5px 0 9px;overflow-wrap:anywhere}
+.tag{font:10px Arial,sans-serif;color:var(--gold);border:1px solid var(--line);
+  display:inline-block;padding:5px 7px;margin:2px 2px 2px 0}
+.smallbtn{padding:7px 9px;font:12px Arial,sans-serif}
+.hidden{display:none!important}
+.empty{padding:40px 10px;text-align:center;color:var(--muted);
+  border:1px dashed var(--line);grid-column:1/-1}
+footer{text-align:center;padding:25px;border-top:1px solid var(--line);
+  color:var(--muted);font:11px Arial,sans-serif;letter-spacing:2px}
+@media(max-width:800px){.closet{grid-template-columns:repeat(2,minmax(0,1fr))}
+.photo{height:170px}}
+@media(max-width:480px){header{padding:22px 5%}.logo{font-size:23px}
+.stats{gap:6px}.stat{padding:12px 8px}.stat strong{font-size:21px}
+.formgrid,.toolbar{grid-template-columns:1fr}.full{grid-column:auto}
+.photo{height:145px}.itembody{padding:9px}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">MON CHER</div>
+    <div class="subtitle">YOUR PERSONAL DIGITAL WARDROBE</div>
+  </div>
+  <span style="color:var(--gold);font-size:23px">✧</span>
+</header>
+
+<main>
+  <p class="muted">01 / MY PERSONAL COLLECTION</p>
+  <h1>Мой гардероб.</h1>
+  <p class="muted">Меньше хаоса. Больше стиля. Твой гардероб — твои правила.</p>
+
+  <div class="stats">
+    <div class="stat"><span>Всего вещей</span><strong id="total">0</strong></div>
+    <div class="stat"><span>Избранное</span><strong id="favorites">0</strong></div>
+    <div class="stat"><span>Категории</span><strong id="categories">0</strong></div>
+  </div>
+
+  <div class="tabs">
+    <button class="active" data-tab="closet">Гардероб</button>
+    <button data-tab="add">＋ Добавить вещь</button>
+    <button data-tab="stylist">Советы стилиста</button>
+    <button data-tab="backup">Резервная копия</button>
+  </div>
+
+  <section id="closet">
+    <h2>Моя коллекция</h2>
+    <div class="toolbar">
+      <input id="search" placeholder="Найти вещь..." aria-label="Поиск">
+      <select id="filter">
+        <option value="">Все категории</option>
+        <option>Верх</option><option>Низ</option><option>Платья</option>
+        <option>Обувь</option><option>Сумки</option><option>Украшения</option>
+        <option>Верхняя одежда</option><option>Другое</option>
+      </select>
+    </div>
+    <div id="items" class="closet"></div>
+  </section>
+
+  <section id="add" class="hidden">
+    <h2 id="formtitle">Добавить новую вещь</h2>
+    <p class="muted">Добавь фотографию, название и характеристики. Лучше использовать изображения без фона.</p>
+    <form id="itemform" class="box">
+      <input id="editid" type="hidden">
+      <div class="formgrid">
+        <div class="field full">
+          <label for="photo">Фотография вещи</label>
+          <input id="photo" type="file" accept="image/*">
+          <p class="muted">Изображение будет сохранено в этом браузере. Не загружай личные фотографии в публичный репозиторий GitHub.</p>
+        </div>
+        <div class="field">
+          <label for="name">Название *</label>
+          <input id="name" required placeholder="Например, чёрное платье">
+        </div>
+        <div class="field">
+          <label for="category">Категория *</label>
+          <select id="category" required>
+            <option>Верх</option><option>Низ</option><option>Платья</option>
+            <option>Обувь</option><option>Сумки</option><option>Украшения</option>
+            <option>Верхняя одежда</option><option>Другое</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="color">Цвет</label>
+          <input id="color" placeholder="Чёрный, бордовый...">
+        </div>
+        <div class="field">
+          <label for="season">Сезон</label>
+          <select id="season">
+            <option>Всесезонная</option><option>Весна</option>
+            <option>Лето</option><option>Осень</option><option>Зима</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="style">Стиль</label>
+          <select id="style">
+            <option>Классика</option><option>Old money</option>
+            <option>Casual</option><option>Вечерний</option>
+            <option>Романтичный</option><option>Спортивный</option><option>Другой</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="price">Цена покупки (необязательно)</label>
+          <input id="price" type="number" min="0" placeholder="₸">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit">Сохранить вещь</button>
+        <button type="button" id="cancel">Отмена</button>
+      </div>
+      <p id="formmessage" class="muted"></p>
+    </form>
+  </section>
+
+  <section id="stylist" class="hidden">
+    <h2>Твой цифровой стилист</h2>
+    <p class="muted">Получай идеи сочетаний на основе вещей, которые уже есть в гардеробе.</p>
+    <div class="box">
+      <div class="field">
+        <label for="occasion">Для какого случая?</label>
+        <select id="occasion">
+          <option>На каждый день</option><option>На учёбу</option>
+          <option>На работу</option><option>На свидание</option>
+          <option>На вечеринку</option><option>На особое мероприятие</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="mood">Какое настроение образа?</label>
+        <select id="mood">
+          <option>Элегантный и классический</option>
+          <option>Old money</option><option>Женственный</option>
+          <option>Тёмный и загадочный</option><option>Расслабленный</option>
+        </select>
+      </div>
+      <button class="primary" id="suggest">Подобрать идею</button>
+      <div id="suggestion" style="margin-top:20px;line-height:1.8"></div>
+      <div class="actions">
+        <button id="copyPrompt" class="hidden">Подготовить запрос для ChatGPT</button>
+      </div>
+      <p class="muted">Подбор ниже — встроенные рекомендации, а не подключённая ИИ-модель. Для настоящих ИИ-советов можно подготовить запрос для ChatGPT.</p>
+    </div>
+  </section>
+
+  <section id="backup" class="hidden">
+    <h2>Мои данные и резервные копии</h2>
+    <div class="box">
+      <p>Создавай резервную копию, чтобы не потерять список вещей и сохранённые фотографии.</p>
+      <div class="actions">
+        <button class="primary" id="export">Скачать резервную копию</button>
+        <button id="importbtn">Восстановить из копии</button>
+        <input id="importfile" class="hidden" type="file" accept=".json,application/json">
+      </div>
+      <p id="backupmessage" class="muted"></p>
+      <p class="muted">Важно: сейчас данные находятся только в этом браузере на этом устройстве. Резервная копия позволяет перенести их вручную, но не синхронизирует автоматически. Облачную синхронизацию подключим следующим этапом.</p>
+    </div>
+  </section>
+</main>
+<footer>MON CHER · CURATED BY YOU</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const DBKEY = "monCherWardrobeV1";
+let clothes = [];
+let currentPhoto = "";
+let advicePrompt = "";
+
+try {
+  clothes = JSON.parse(localStorage.getItem(DBKEY) || "[]");
+  if (!Array.isArray(clothes)) clothes = [];
+} catch { clothes = []; }
+
+function save() {
+  try {
+    localStorage.setItem(DBKEY, JSON.stringify(clothes));
+    return true;
+  } catch {
+    alert("В браузере не хватает места для сохранения. Удали большие фотографии или создай резервную копию.");
+    return false;
+  }
+}
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[ch]));
+}
+function stats() {
+  $("total").textContent = clothes.length;
+  $("favorites").textContent = clothes.filter(x => x.favorite).length;
+  $("categories").textContent = new Set(clothes.map(x => x.category)).size;
+}
+function render() {
+  stats();
+  const query = $("search").value.toLowerCase().trim();
+  const filter = $("filter").value;
+  const list = clothes.filter(x =>
+    (!filter || x.category === filter) &&
+    [x.name,x.color,x.category,x.style,x.season].join(" ").toLowerCase().includes(query)
+  );
+  $("items").innerHTML = list.length ? list.map(x => `
+    <article class="item">
+      <div class="photo">${x.photo
+        ? `<img src="${x.photo}" alt="${esc(x.name)}">`
+        : `<span>MON CHER</span>`}</div>
+      <div class="itembody">
+        <h3>${esc(x.name)}</h3>
+        <span class="tag">${esc(x.category)}</span>
+        ${x.color ? `<span class="tag">${esc(x.color)}</span>` : ""}
+        <p class="muted">${esc(x.season)} · ${esc(x.style)}</p>
+        ${x.price ? `<p class="muted">${esc(x.price)} ₸</p>` : ""}
+        <div class="actions">
+          <button class="smallbtn" data-fav="${x.id}">${x.favorite ? "♥" : "♡"}</button>
+          <button class="smallbtn" data-edit="${x.id}">Изменить</button>
+          <button class="smallbtn" data-delete="${x.id}">Удалить</button>
+        </div>
+      </div>
+    </article>`).join("") :
+    `<div class="empty">Здесь пока нет вещей.<br>Добавь первую вещь в свою коллекцию.</div>`;
+}
+function resetForm() {
+  $("itemform").reset();
+  $("editid").value = "";
+  currentPhoto = "";
+  $("formtitle").textContent = "Добавить новую вещь";
+  $("formmessage").textContent = "";
+}
+function openTab(tab) {
+  ["closet","add","stylist","backup"].forEach(id =>
+    $(id).classList.toggle("hidden", id !== tab));
+  document.querySelectorAll("[data-tab]").forEach(btn =>
+    btn.classList.toggle("active", btn.dataset.tab === tab));
+  if (tab === "closet") render();
+}
+document.querySelectorAll("[data-tab]").forEach(btn =>
+  btn.addEventListener("click", () => openTab(btn.dataset.tab)));
+$("search").addEventListener("input", render);
+$("filter").addEventListener("change", render);
+$("cancel").addEventListener("click", () => { resetForm(); openTab("closet"); });
+
+$("photo").addEventListener("change", () => {
+  const file = $("photo").files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    alert("Выбери файл изображения."); $("photo").value = ""; return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    alert("Для первой версии выбери фото размером до 2 МБ."); $("photo").value = ""; return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => { currentPhoto = reader.result; };
+  reader.readAsDataURL(file);
+});
+
+$("itemform").addEventListener("submit", event => {
+  event.preventDefault();
+  const id = $("editid").value;
+  const old = clothes.find(x => x.id === id);
+  const item = {
+    id: id || (Date.now().toString(36) + Math.random().toString(36).slice(2,7)),
+    name: $("name").value.trim(),
+    category: $("category").value,
+    color: $("color").value.trim(),
+    season: $("season").value,
+    style: $("style").value,
+    price: $("price").value,
+    photo: currentPhoto || old?.photo || "",
+    favorite: old?.favorite || false
+  };
+  if (!item.name) return;
+  const previous = clothes.slice();
+  if (id) clothes = clothes.map(x => x.id === id ? item : x);
+  else clothes.unshift(item);
+  if (!save()) { clothes = previous; return; }
+  resetForm(); render(); openTab("closet");
+});
+
+$("items").addEventListener("click", event => {
+  const btn = event.target.closest("button");
+  if (!btn) return;
+  if (btn.dataset.fav) {
+    clothes = clothes.map(x => x.id === btn.dataset.fav
+      ? {...x, favorite: !x.favorite} : x);
+    save(); render();
+  }
+  if (btn.dataset.delete) {
+    const item = clothes.find(x => x.id === btn.dataset.delete);
+    if (item && confirm(`Удалить «${item.name}»?`)) {
+      clothes = clothes.filter(x => x.id !== item.id);
+      save(); render();
+    }
+  }
+  if (btn.dataset.edit) {
+    const x = clothes.find(x => x.id === btn.dataset.edit);
+    if (!x) return;
+    $("editid").value = x.id;
+    $("name").value = x.name;
+    $("category").value = x.category;
+    $("color").value = x.color;
+    $("season").value = x.season;
+    $("style").value = x.style;
+    $("price").value = x.price;
+    currentPhoto = x.photo || "";
+    $("formtitle").textContent = "Изменить вещь";
+    openTab("add");
+  }
+});
+
+$("suggest").addEventListener("click", () => {
+  const occasion = $("occasion").value;
+  const mood = $("mood").value;
+  const available = clothes.filter(x => !x.season ||
+    x.season === "Всесезонная" || x.season === "Весна" ||
+    x.season === "Лето" || x.season === "Осень" || x.season === "Зима");
+  const tops = available.filter(x => x.category === "Верх");
+  const bottoms = available.filter(x => x.category === "Низ");
+  const dresses = available.filter(x => x.category === "Платья");
+  const shoes = available.filter(x => x.category === "Обувь");
+  const bags = available.filter(x => x.category === "Сумки");
+  const pick = arr => arr.length ? arr[Math.floor(Math.random()*arr.length)] : null;
+  const outfit = [];
+  if (dresses.length && Math.random() > .4) outfit.push(pick(dresses));
+  else { if (tops.length) outfit.push(pick(tops)); if (bottoms.length) outfit.push(pick(bottoms)); }
+  if (shoes.length) outfit.push(pick(shoes));
+  if (bags.length) outfit.push(pick(bags));
+  let result = `<h3 style="color:var(--gold);font-weight:400">Идея образа · ${esc(occasion)}</h3>`;
+  result += `<p>Настроение: ${esc(mood)}.</p>`;
+  if (!clothes.length) {
+    result += "<p>Сначала добавь несколько вещей в гардероб, чтобы стилист мог предложить сочетание.</p>";
+  } else if (!outfit.length) {
+    result += "<p>Добавь категории «Верх», «Низ», «Платья», «Обувь» или «Сумки», чтобы получить более точную идею.</p>";
+  } else {
+    result += "<p>Попробуй сочетать:</p><ul>" + outfit.map(x =>
+      `<li>${esc(x.name)}${x.color ? " — " + esc(x.color) : ""}</li>`).join("") + "</ul>";
+    result += "<p>Совет: начни с одного основного цвета и добавь максимум один выразительный акцент — например, золото или бордовый.</p>";
+  }
+  $("suggestion").innerHTML = result;
+  advicePrompt = `Ты мой персональный стилист. Предложи 3 гармоничных образа для случая: ${occasion}. Настроение: ${mood}. Используй только вещи из моего списка, не выдумывай отсутствующие вещи. Мой гардероб: ${clothes.map(x => `${x.name}, категория ${x.category}, цвет ${x.color || "не указан"}, стиль ${x.style}, сезон ${x.season}`).join("; ")}. Объясни сочетания цветов и предложи, чего не хватает для более универсального гардероба. Отвечай по-русски.`;
+  $("copyPrompt").classList.toggle("hidden", clothes.length === 0);
+});
+$("copyPrompt").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(advicePrompt);
+    $("suggestion").insertAdjacentHTML("beforeend",
+      '<p class="muted">Запрос скопирован. Открой ChatGPT и вставь его в чат.</p>');
+  } catch {
+    prompt("Скопируй этот запрос и вставь в ChatGPT:", advicePrompt);
+  }
+});
+
+$("export").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify({
+    app:"MON CHER",version:1,exportedAt:new Date().toISOString(),clothes
+  },null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "mon-cher-backup.json"; a.click();
+  URL.revokeObjectURL(url);
+  $("backupmessage").textContent = "Резервная копия подготовлена. Сохрани файл в надёжном месте.";
+});
+$("importbtn").addEventListener("click", () => $("importfile").click());
+$("importfile").addEventListener("change", async () => {
+  const file = $("importfile").files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const imported = Array.isArray(data) ? data : data.clothes;
+    if (!Array.isArray(imported) || !imported.every(x =>
+      x && typeof x.name === "string" && typeof x.id === "string")) {
+      throw new Error("Неверный формат");
+    }
+    if (!confirm("Восстановить копию? Текущий список вещей будет заменён.")) return;
+    const old = clothes;
+    clothes = imported;
+    if (!save()) clothes = old;
+    render();
+    $("backupmessage").textContent = "Импорт завершён.";
+  } catch {
+    $("backupmessage").textContent = "Не удалось прочитать копию. Проверь, что выбрала файл MON CHER.";
+  } finally { $("importfile").value = ""; }
+});
+render();
+</script>
+</body>
+</html>
