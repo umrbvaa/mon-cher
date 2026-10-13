@@ -1,433 +1,577 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MON CHER — My Digital Wardrobe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MON CHER — My Wardrobe</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg:#17130f; --panel:#211b16; --panel2:#2b231b;
-  --gold:#c9a66b; --cream:#f2e8d9; --muted:#ad9d8b;
-  --line:#44372b; --red:#793b3b;
+  --bg:#151311; --panel:#201d19; --text:#f4eee5;
+  --muted:#b7a99a; --gold:#c6a66b; --line:#40382e;
+  --red:#6f302f;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--cream);
-  font-family:Georgia,"Times New Roman",serif}
-button,input,select{font:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,"Times New Roman",serif}
+button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-header{padding:30px 6%;border-bottom:1px solid var(--line);
-  display:flex;justify-content:space-between;align-items:center;gap:15px}
-.logo{font-size:30px;letter-spacing:7px;color:var(--gold)}
-.subtitle{font:11px Arial,sans-serif;letter-spacing:3px;color:var(--muted);margin-top:8px}
-main{max-width:1200px;margin:auto;padding:28px 5% 60px}
-h1{font-size:clamp(27px,4vw,43px);font-weight:400;margin:10px 0}
-h2{font-weight:400;font-size:23px}
+button:disabled{opacity:.5;cursor:wait}
+.wrap{max-width:1180px;margin:auto;padding:24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding:10px 0 24px}
+.logo{font-size:32px;letter-spacing:5px;color:var(--gold)}
+.subtitle{color:var(--muted);font-size:12px;letter-spacing:3px;margin-top:8px}
+h1,h2,h3{font-weight:normal}
+h1{font-size:clamp(28px,5vw,48px);margin:28px 0 8px}
 p{line-height:1.6}
-.muted{color:var(--muted);font:13px Arial,sans-serif;line-height:1.6}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:25px 0}
-.stat,.box{border:1px solid var(--line);background:var(--panel);padding:18px}
-.stat span{display:block;color:var(--muted);font:11px Arial,sans-serif;
-  letter-spacing:1px;text-transform:uppercase}
-.stat strong{display:block;color:var(--gold);font-size:27px;margin-top:10px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:25px 0}
-button{background:var(--panel2);color:var(--cream);border:1px solid var(--line);
-  padding:11px 15px}
-button:hover,.active{border-color:var(--gold);color:var(--gold)}
-.primary{background:var(--gold);color:#1a140e;border-color:var(--gold)}
-.primary:hover{background:#e0c18d;color:#1a140e}
-input,select{width:100%;background:#17130f;color:var(--cream);
-  border:1px solid var(--line);padding:12px;min-width:0}
-label{display:block;color:var(--muted);font:12px Arial,sans-serif;margin-bottom:7px}
-.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.field{margin-bottom:14px}
-.full{grid-column:1/-1}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.toolbar{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin:20px 0}
-.closet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.item{background:var(--panel);border:1px solid var(--line);min-width:0}
-.photo{height:210px;background:#eee5d7;display:flex;align-items:center;
-  justify-content:center;overflow:hidden;color:#5e4b37}
-.photo img{width:100%;height:100%;object-fit:contain}
-.itembody{padding:12px}
-.itembody h3{font-weight:400;font-size:17px;margin:5px 0 9px;overflow-wrap:anywhere}
-.tag{font:10px Arial,sans-serif;color:var(--gold);border:1px solid var(--line);
-  display:inline-block;padding:5px 7px;margin:2px 2px 2px 0}
-.smallbtn{padding:7px 9px;font:12px Arial,sans-serif}
+.muted{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;margin:22px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+label{font-size:13px;color:var(--muted)}
+input,select,textarea{width:100%;padding:12px;background:#171512;color:var(--text);border:1px solid var(--line);border-radius:5px}
+input[type=file]{padding:9px}
+button,.button{border:1px solid var(--gold);background:var(--gold);color:#17130e;padding:11px 16px;border-radius:4px}
+button.secondary{background:transparent;color:var(--gold)}
+button.danger{border-color:#a45a55;color:#f0b2aa;background:transparent}
+.actions{display:flex;flex-wrap:wrap;gap:9px}
+.auth{max-width:470px;margin:55px auto}
+.auth .logo{text-align:center}
+.auth .subtitle{text-align:center}
+.tabs{display:flex;gap:10px;margin:20px 0}
+.status{color:var(--gold);min-height:24px;margin:12px 0}
+.toolbar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin:20px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.photo{width:100%;height:270px;object-fit:cover;background:#29241e;display:block}
+.cardbody{padding:14px}
+.card h3{margin:0 0 8px;font-size:21px;overflow-wrap:anywhere}
+.tag{display:inline-block;color:var(--gold);border:1px solid var(--line);padding:5px 8px;margin:3px 4px 8px 0;font-size:12px}
+.card .actions{margin-top:12px}
+.card .actions button{padding:8px 10px;font-size:13px}
+.empty{text-align:center;padding:50px 15px;color:var(--muted);border:1px dashed var(--line)}
 .hidden{display:none!important}
-.empty{padding:40px 10px;text-align:center;color:var(--muted);
-  border:1px dashed var(--line);grid-column:1/-1}
-footer{text-align:center;padding:25px;border-top:1px solid var(--line);
-  color:var(--muted);font:11px Arial,sans-serif;letter-spacing:2px}
-@media(max-width:800px){.closet{grid-template-columns:repeat(2,minmax(0,1fr))}
-.photo{height:170px}}
-@media(max-width:480px){header{padding:22px 5%}.logo{font-size:23px}
-.stats{gap:6px}.stat{padding:12px 8px}.stat strong{font-size:21px}
-.formgrid,.toolbar{grid-template-columns:1fr}.full{grid-column:auto}
-.photo{height:145px}.itembody{padding:9px}}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:35px 0}
+@media(max-width:650px){
+ .wrap{padding:15px}
+ header{align-items:flex-start}
+ .logo{font-size:25px;letter-spacing:3px}
+ .toolbar{grid-template-columns:1fr}
+ .panel{padding:15px}
+ .photo{height:240px}
+}
 </style>
 </head>
 <body>
-<header>
-  <div>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="logo">MON CHER</div>
+      <div class="subtitle">YOUR PERSONAL WARDROBE</div>
+    </div>
+    <button id="logoutBtn" class="secondary hidden">Выйти</button>
+  </header>
+
+  <section id="authSection" class="auth panel">
     <div class="logo">MON CHER</div>
-    <div class="subtitle">YOUR PERSONAL DIGITAL WARDROBE</div>
-  </div>
-  <span style="color:var(--gold);font-size:23px">✧</span>
-</header>
-
-<main>
-  <p class="muted">01 / MY PERSONAL COLLECTION</p>
-  <h1>Мой гардероб.</h1>
-  <p class="muted">Меньше хаоса. Больше стиля. Твой гардероб — твои правила.</p>
-
-  <div class="stats">
-    <div class="stat"><span>Всего вещей</span><strong id="total">0</strong></div>
-    <div class="stat"><span>Избранное</span><strong id="favorites">0</strong></div>
-    <div class="stat"><span>Категории</span><strong id="categories">0</strong></div>
-  </div>
-
-  <div class="tabs">
-    <button class="active" data-tab="closet">Гардероб</button>
-    <button data-tab="add">＋ Добавить вещь</button>
-    <button data-tab="stylist">Советы стилиста</button>
-    <button data-tab="backup">Резервная копия</button>
-  </div>
-
-  <section id="closet">
-    <h2>Моя коллекция</h2>
-    <div class="toolbar">
-      <input id="search" placeholder="Найти вещь..." aria-label="Поиск">
-      <select id="filter">
-        <option value="">Все категории</option>
-        <option>Верх</option><option>Низ</option><option>Платья</option>
-        <option>Обувь</option><option>Сумки</option><option>Украшения</option>
-        <option>Верхняя одежда</option><option>Другое</option>
-      </select>
-    </div>
-    <div id="items" class="closet"></div>
-  </section>
-
-  <section id="add" class="hidden">
-    <h2 id="formtitle">Добавить новую вещь</h2>
-    <p class="muted">Добавь фотографию, название и характеристики. Лучше использовать изображения без фона.</p>
-    <form id="itemform" class="box">
-      <input id="editid" type="hidden">
-      <div class="formgrid">
-        <div class="field full">
-          <label for="photo">Фотография вещи</label>
-          <input id="photo" type="file" accept="image/*">
-          <p class="muted">Изображение будет сохранено в этом браузере. Не загружай личные фотографии в публичный репозиторий GitHub.</p>
-        </div>
-        <div class="field">
-          <label for="name">Название *</label>
-          <input id="name" required placeholder="Например, чёрное платье">
-        </div>
-        <div class="field">
-          <label for="category">Категория *</label>
-          <select id="category" required>
-            <option>Верх</option><option>Низ</option><option>Платья</option>
-            <option>Обувь</option><option>Сумки</option><option>Украшения</option>
-            <option>Верхняя одежда</option><option>Другое</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="color">Цвет</label>
-          <input id="color" placeholder="Чёрный, бордовый...">
-        </div>
-        <div class="field">
-          <label for="season">Сезон</label>
-          <select id="season">
-            <option>Всесезонная</option><option>Весна</option>
-            <option>Лето</option><option>Осень</option><option>Зима</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="style">Стиль</label>
-          <select id="style">
-            <option>Классика</option><option>Old money</option>
-            <option>Casual</option><option>Вечерний</option>
-            <option>Романтичный</option><option>Спортивный</option><option>Другой</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="price">Цена покупки (необязательно)</label>
-          <input id="price" type="number" min="0" placeholder="₸">
-        </div>
+    <div class="subtitle">A PLACE FOR YOUR STYLE</div>
+    <h2 id="authTitle">Вход в аккаунт</h2>
+    <p class="muted">Создай личный гардероб и открывай его с разных устройств.</p>
+    <form id="authForm">
+      <div class="field">
+        <label for="authEmail">Электронная почта</label>
+        <input id="authEmail" type="email" autocomplete="email" required>
       </div>
-      <div class="actions">
-        <button class="primary" type="submit">Сохранить вещь</button>
-        <button type="button" id="cancel">Отмена</button>
+      <div class="field">
+        <label for="authPassword">Пароль</label>
+        <input id="authPassword" type="password" minlength="6" autocomplete="current-password" required>
       </div>
-      <p id="formmessage" class="muted"></p>
+      <button id="authSubmit" type="submit">Войти</button>
     </form>
+    <div class="tabs">
+      <button id="showLogin" class="secondary" type="button">Вход</button>
+      <button id="showRegister" class="secondary" type="button">Регистрация</button>
+    </div>
+    <div id="authStatus" class="status" role="status"></div>
   </section>
 
-  <section id="stylist" class="hidden">
-    <h2>Твой цифровой стилист</h2>
-    <p class="muted">Получай идеи сочетаний на основе вещей, которые уже есть в гардеробе.</p>
-    <div class="box">
-      <div class="field">
-        <label for="occasion">Для какого случая?</label>
-        <select id="occasion">
-          <option>На каждый день</option><option>На учёбу</option>
-          <option>На работу</option><option>На свидание</option>
-          <option>На вечеринку</option><option>На особое мероприятие</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="mood">Какое настроение образа?</label>
-        <select id="mood">
-          <option>Элегантный и классический</option>
-          <option>Old money</option><option>Женственный</option>
-          <option>Тёмный и загадочный</option><option>Расслабленный</option>
-        </select>
-      </div>
-      <button class="primary" id="suggest">Подобрать идею</button>
-      <div id="suggestion" style="margin-top:20px;line-height:1.8"></div>
-      <div class="actions">
-        <button id="copyPrompt" class="hidden">Подготовить запрос для ChatGPT</button>
-      </div>
-      <p class="muted">Подбор ниже — встроенные рекомендации, а не подключённая ИИ-модель. Для настоящих ИИ-советов можно подготовить запрос для ChatGPT.</p>
-    </div>
-  </section>
+  <main id="appSection" class="hidden">
+    <h1>Твой гардероб</h1>
+    <p class="muted">Вещи, сочетания и твой неповторимый стиль.</p>
+    <div id="status" class="status" role="status"></div>
 
-  <section id="backup" class="hidden">
-    <h2>Мои данные и резервные копии</h2>
-    <div class="box">
-      <p>Создавай резервную копию, чтобы не потерять список вещей и сохранённые фотографии.</p>
-      <div class="actions">
-        <button class="primary" id="export">Скачать резервную копию</button>
-        <button id="importbtn">Восстановить из копии</button>
-        <input id="importfile" class="hidden" type="file" accept=".json,application/json">
+    <section class="panel">
+      <h2 id="formTitle">Добавить вещь</h2>
+      <form id="itemForm">
+        <input type="hidden" id="itemId">
+        <div class="grid">
+          <div class="field">
+            <label for="itemName">Название вещи *</label>
+            <input id="itemName" maxlength="100" placeholder="Например, чёрный жакет" required>
+          </div>
+          <div class="field">
+            <label for="itemCategory">Категория</label>
+            <select id="itemCategory">
+              <option>Верхняя одежда</option>
+              <option>Верх</option>
+              <option>Низ</option>
+              <option>Платья</option>
+              <option>Обувь</option>
+              <option>Сумки</option>
+              <option>Аксессуары</option>
+              <option>Другое</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="itemColor">Цвет</label>
+            <input id="itemColor" placeholder="Чёрный, бордовый, кремовый">
+          </div>
+          <div class="field">
+            <label for="itemSeason">Сезон</label>
+            <select id="itemSeason">
+              <option>Всесезонная</option>
+              <option>Весна</option>
+              <option>Лето</option>
+              <option>Осень</option>
+              <option>Зима</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="itemStyle">Стиль</label>
+            <input id="itemStyle" placeholder="Classic, old money, casual">
+          </div>
+          <div class="field">
+            <label for="itemPrice">Цена (₸)</label>
+            <input id="itemPrice" type="number" min="0" step="0.01" placeholder="Например, 15000">
+          </div>
+          <div class="field">
+            <label for="itemPhoto">Фотография вещи</label>
+            <input id="itemPhoto" type="file" accept="image/*">
+            <small class="muted">Если редактируешь вещь, можешь не выбирать новое фото.</small>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="saveBtn" type="submit">Сохранить вещь</button>
+          <button id="cancelEdit" type="button" class="secondary hidden">Отменить редактирование</button>
+        </div>
+      </form>
+    </section>
+
+    <section>
+      <h2>Мои вещи</h2>
+      <div class="toolbar">
+        <input id="search" placeholder="Поиск по названию, цвету или стилю">
+        <select id="filterCategory">
+          <option value="">Все категории</option>
+          <option>Верхняя одежда</option>
+          <option>Верх</option><option>Низ</option>
+          <option>Платья</option><option>Обувь</option>
+          <option>Сумки</option><option>Аксессуары</option><option>Другое</option>
+        </select>
+        <select id="filterSeason">
+          <option value="">Все сезоны</option>
+          <option>Всесезонная</option><option>Весна</option>
+          <option>Лето</option><option>Осень</option><option>Зима</option>
+        </select>
       </div>
-      <p id="backupmessage" class="muted"></p>
-      <p class="muted">Важно: сейчас данные находятся только в этом браузере на этом устройстве. Резервная копия позволяет перенести их вручную, но не синхронизирует автоматически. Облачную синхронизацию подключим следующим этапом.</p>
-    </div>
-  </section>
-</main>
-<footer>MON CHER · CURATED BY YOU</footer>
+      <div id="wardrobe" class="grid"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Идея образа</h2>
+      <p class="muted">Сайт предложит случайные вещи из твоего гардероба. Это простая подборка, а не профессиональная оценка сочетаемости.</p>
+      <button id="outfitBtn" class="secondary" type="button">Подобрать вещи</button>
+      <div id="outfitResult" class="grid" style="margin-top:18px"></div>
+    </section>
+  </main>
+
+  <footer>MON CHER · YOUR STYLE, YOUR STORY</footer>
+</div>
 
 <script>
+const SUPABASE_URL = "https://nqxnsszgivjcrlysdlrt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ejehfSCk3oPE3PZKPE-shw_SQZo4e-C";
+const BUCKET = "wardrobe-photos";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+let items = [];
+let authMode = "login";
+let busy = false;
+
 const $ = id => document.getElementById(id);
-const DBKEY = "monCherWardrobeV1";
-let clothes = [];
-let currentPhoto = "";
-let advicePrompt = "";
+const setStatus = (message, auth = false) => {
+  $(auth ? "authStatus" : "status").textContent = message || "";
+};
 
-try {
-  clothes = JSON.parse(localStorage.getItem(DBKEY) || "[]");
-  if (!Array.isArray(clothes)) clothes = [];
-} catch { clothes = []; }
+function setBusy(value) {
+  busy = value;
+  $("saveBtn").disabled = value;
+  $("authSubmit").disabled = value;
+}
 
-function save() {
-  try {
-    localStorage.setItem(DBKEY, JSON.stringify(clothes));
-    return true;
-  } catch {
-    alert("В браузере не хватает места для сохранения. Удали большие фотографии или создай резервную копию.");
-    return false;
-  }
+function showAuth() {
+  $("authSection").classList.remove("hidden");
+  $("appSection").classList.add("hidden");
+  $("logoutBtn").classList.add("hidden");
 }
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, ch => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[ch]));
-}
-function stats() {
-  $("total").textContent = clothes.length;
-  $("favorites").textContent = clothes.filter(x => x.favorite).length;
-  $("categories").textContent = new Set(clothes.map(x => x.category)).size;
-}
-function render() {
-  stats();
-  const query = $("search").value.toLowerCase().trim();
-  const filter = $("filter").value;
-  const list = clothes.filter(x =>
-    (!filter || x.category === filter) &&
-    [x.name,x.color,x.category,x.style,x.season].join(" ").toLowerCase().includes(query)
-  );
-  $("items").innerHTML = list.length ? list.map(x => `
-    <article class="item">
-      <div class="photo">${x.photo
-        ? `<img src="${x.photo}" alt="${esc(x.name)}">`
-        : `<span>MON CHER</span>`}</div>
-      <div class="itembody">
-        <h3>${esc(x.name)}</h3>
-        <span class="tag">${esc(x.category)}</span>
-        ${x.color ? `<span class="tag">${esc(x.color)}</span>` : ""}
-        <p class="muted">${esc(x.season)} · ${esc(x.style)}</p>
-        ${x.price ? `<p class="muted">${esc(x.price)} ₸</p>` : ""}
-        <div class="actions">
-          <button class="smallbtn" data-fav="${x.id}">${x.favorite ? "♥" : "♡"}</button>
-          <button class="smallbtn" data-edit="${x.id}">Изменить</button>
-          <button class="smallbtn" data-delete="${x.id}">Удалить</button>
-        </div>
-      </div>
-    </article>`).join("") :
-    `<div class="empty">Здесь пока нет вещей.<br>Добавь первую вещь в свою коллекцию.</div>`;
-}
-function resetForm() {
-  $("itemform").reset();
-  $("editid").value = "";
-  currentPhoto = "";
-  $("formtitle").textContent = "Добавить новую вещь";
-  $("formmessage").textContent = "";
-}
-function openTab(tab) {
-  ["closet","add","stylist","backup"].forEach(id =>
-    $(id).classList.toggle("hidden", id !== tab));
-  document.querySelectorAll("[data-tab]").forEach(btn =>
-    btn.classList.toggle("active", btn.dataset.tab === tab));
-  if (tab === "closet") render();
-}
-document.querySelectorAll("[data-tab]").forEach(btn =>
-  btn.addEventListener("click", () => openTab(btn.dataset.tab)));
-$("search").addEventListener("input", render);
-$("filter").addEventListener("change", render);
-$("cancel").addEventListener("click", () => { resetForm(); openTab("closet"); });
 
-$("photo").addEventListener("change", () => {
-  const file = $("photo").files[0];
-  if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    alert("Выбери файл изображения."); $("photo").value = ""; return;
-  }
-  if (file.size > 2 * 1024 * 1024) {
-    alert("Для первой версии выбери фото размером до 2 МБ."); $("photo").value = ""; return;
-  }
-  const reader = new FileReader();
-  reader.onload = () => { currentPhoto = reader.result; };
-  reader.readAsDataURL(file);
-});
+function showApp() {
+  $("authSection").classList.add("hidden");
+  $("appSection").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
+}
 
-$("itemform").addEventListener("submit", event => {
+function setAuthMode(mode) {
+  authMode = mode;
+  $("authTitle").textContent = mode === "login" ? "Вход в аккаунт" : "Создать аккаунт";
+  $("authSubmit").textContent = mode === "login" ? "Войти" : "Зарегистрироваться";
+  $("authPassword").autocomplete = mode === "login" ? "current-password" : "new-password";
+  setStatus("", true);
+}
+
+$("showLogin").addEventListener("click", () => setAuthMode("login"));
+$("showRegister").addEventListener("click", () => setAuthMode("register"));
+
+$("authForm").addEventListener("submit", async event => {
   event.preventDefault();
-  const id = $("editid").value;
-  const old = clothes.find(x => x.id === id);
-  const item = {
-    id: id || (Date.now().toString(36) + Math.random().toString(36).slice(2,7)),
-    name: $("name").value.trim(),
-    category: $("category").value,
-    color: $("color").value.trim(),
-    season: $("season").value,
-    style: $("style").value,
-    price: $("price").value,
-    photo: currentPhoto || old?.photo || "",
-    favorite: old?.favorite || false
-  };
-  if (!item.name) return;
-  const previous = clothes.slice();
-  if (id) clothes = clothes.map(x => x.id === id ? item : x);
-  else clothes.unshift(item);
-  if (!save()) { clothes = previous; return; }
-  resetForm(); render(); openTab("closet");
-});
+  if (busy) return;
+  setBusy(true);
+  setStatus("Подключаемся…", true);
 
-$("items").addEventListener("click", event => {
-  const btn = event.target.closest("button");
-  if (!btn) return;
-  if (btn.dataset.fav) {
-    clothes = clothes.map(x => x.id === btn.dataset.fav
-      ? {...x, favorite: !x.favorite} : x);
-    save(); render();
-  }
-  if (btn.dataset.delete) {
-    const item = clothes.find(x => x.id === btn.dataset.delete);
-    if (item && confirm(`Удалить «${item.name}»?`)) {
-      clothes = clothes.filter(x => x.id !== item.id);
-      save(); render();
+  try {
+    const email = $("authEmail").value.trim();
+    const password = $("authPassword").value;
+    let result;
+
+    if (authMode === "register") {
+      result = await sb.auth.signUp({ email, password });
+      if (result.error) throw result.error;
+
+      if (result.data.session) {
+        setStatus("Аккаунт создан. Открываем гардероб…", true);
+      } else {
+        setStatus("Проверь почту и подтверди регистрацию, затем войди в аккаунт.", true);
+      }
+    } else {
+      result = await sb.auth.signInWithPassword({ email, password });
+      if (result.error) throw result.error;
+      setStatus("Вход выполнен.", true);
     }
-  }
-  if (btn.dataset.edit) {
-    const x = clothes.find(x => x.id === btn.dataset.edit);
-    if (!x) return;
-    $("editid").value = x.id;
-    $("name").value = x.name;
-    $("category").value = x.category;
-    $("color").value = x.color;
-    $("season").value = x.season;
-    $("style").value = x.style;
-    $("price").value = x.price;
-    currentPhoto = x.photo || "";
-    $("formtitle").textContent = "Изменить вещь";
-    openTab("add");
+  } catch (error) {
+    setStatus(error.message || "Не удалось выполнить действие.", true);
+  } finally {
+    setBusy(false);
   }
 });
 
-$("suggest").addEventListener("click", () => {
-  const occasion = $("occasion").value;
-  const mood = $("mood").value;
-  const available = clothes.filter(x => !x.season ||
-    x.season === "Всесезонная" || x.season === "Весна" ||
-    x.season === "Лето" || x.season === "Осень" || x.season === "Зима");
-  const tops = available.filter(x => x.category === "Верх");
-  const bottoms = available.filter(x => x.category === "Низ");
-  const dresses = available.filter(x => x.category === "Платья");
-  const shoes = available.filter(x => x.category === "Обувь");
-  const bags = available.filter(x => x.category === "Сумки");
-  const pick = arr => arr.length ? arr[Math.floor(Math.random()*arr.length)] : null;
-  const outfit = [];
-  if (dresses.length && Math.random() > .4) outfit.push(pick(dresses));
-  else { if (tops.length) outfit.push(pick(tops)); if (bottoms.length) outfit.push(pick(bottoms)); }
-  if (shoes.length) outfit.push(pick(shoes));
-  if (bags.length) outfit.push(pick(bags));
-  let result = `<h3 style="color:var(--gold);font-weight:400">Идея образа · ${esc(occasion)}</h3>`;
-  result += `<p>Настроение: ${esc(mood)}.</p>`;
-  if (!clothes.length) {
-    result += "<p>Сначала добавь несколько вещей в гардероб, чтобы стилист мог предложить сочетание.</p>";
-  } else if (!outfit.length) {
-    result += "<p>Добавь категории «Верх», «Низ», «Платья», «Обувь» или «Сумки», чтобы получить более точную идею.</p>";
+$("logoutBtn").addEventListener("click", async () => {
+  const { error } = await sb.auth.signOut();
+  if (error) setStatus(error.message);
+});
+
+async function refreshItems() {
+  if (!currentUser) return;
+  setStatus("Загружаем гардероб…");
+
+  const { data, error } = await sb
+    .from("wardrobe_items")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  items = data || [];
+
+  await Promise.all(items.map(async item => {
+    item.photoUrl = null;
+    if (!item.image_path) return;
+    const { data: signed, error: photoError } = await sb.storage
+      .from(BUCKET)
+      .createSignedUrl(item.image_path, 3600);
+    if (!photoError && signed) item.photoUrl = signed.signedUrl;
+  }));
+
+  renderItems();
+  setStatus(items.length ? `В гардеробе вещей: ${items.length}` : "Пока здесь пусто. Добавь свою первую вещь.");
+}
+
+async function activateUser(user) {
+  currentUser = user;
+  if (!user) {
+    items = [];
+    showAuth();
+    return;
+  }
+  showApp();
+  try {
+    await refreshItems();
+  } catch (error) {
+    setStatus("Не удалось загрузить вещи: " + error.message);
+  }
+}
+
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+    if (session?.user && currentUser?.id !== session.user.id) {
+      activateUser(session.user);
+    }
+  } else if (event === "SIGNED_OUT") {
+    currentUser = null;
+    items = [];
+    showAuth();
+  }
+});
+
+async function uploadPhoto(file, itemId) {
+  if (!file) return null;
+  if (!file.type.startsWith("image/")) throw new Error("Выбери файл изображения.");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Фото должно быть меньше 8 МБ.");
+
+  const extension = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const path = `${currentUser.id}/${itemId}-${Date.now()}.${extension || "jpg"}`;
+  const { error } = await sb.storage.from(BUCKET).upload(path, file, {
+    upsert: false,
+    contentType: file.type
+  });
+  if (error) throw error;
+  return path;
+}
+
+async function deletePhoto(path) {
+  if (!path) return;
+  const { error } = await sb.storage.from(BUCKET).remove([path]);
+  if (error) console.warn("Фото не удалено:", error.message);
+}
+
+$("itemForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!currentUser || busy) return;
+  setBusy(true);
+
+  let uploadedPath = null;
+  try {
+    const id = $("itemId").value || crypto.randomUUID();
+    const oldItem = items.find(item => item.id === id);
+    const file = $("itemPhoto").files[0];
+
+    const values = {
+      name: $("itemName").value.trim(),
+      category: $("itemCategory").value,
+      color: $("itemColor").value.trim() || null,
+      season: $("itemSeason").value,
+      style: $("itemStyle").value.trim() || null,
+      price: $("itemPrice").value === "" ? null : Number($("itemPrice").value),
+      user_id: currentUser.id
+    };
+
+    if (!values.name) throw new Error("Введи название вещи.");
+
+    if (file) uploadedPath = await uploadPhoto(file, id);
+    if (uploadedPath) values.image_path = uploadedPath;
+
+    if (oldItem) {
+      const { error } = await sb.from("wardrobe_items")
+        .update(values).eq("id", id).eq("user_id", currentUser.id);
+      if (error) throw error;
+      if (uploadedPath && oldItem.image_path) await deletePhoto(oldItem.image_path);
+    } else {
+      values.id = id;
+      values.is_favorite = false;
+      const { error } = await sb.from("wardrobe_items").insert(values);
+      if (error) throw error;
+    }
+
+    $("itemForm").reset();
+    $("itemId").value = "";
+    $("formTitle").textContent = "Добавить вещь";
+    $("saveBtn").textContent = "Сохранить вещь";
+    $("cancelEdit").classList.add("hidden");
+    await refreshItems();
+    setStatus("Вещь сохранена.");
+  } catch (error) {
+    if (uploadedPath) await deletePhoto(uploadedPath);
+    setStatus("Ошибка: " + (error.message || "Не удалось сохранить вещь."));
+  } finally {
+    setBusy(false);
+  }
+});
+
+$("cancelEdit").addEventListener("click", resetForm);
+
+function resetForm() {
+  $("itemForm").reset();
+  $("itemId").value = "";
+  $("formTitle").textContent = "Добавить вещь";
+  $("saveBtn").textContent = "Сохранить вещь";
+  $("cancelEdit").classList.add("hidden");
+}
+
+function editItem(id) {
+  const item = items.find(x => x.id === id);
+  if (!item) return;
+  $("itemId").value = item.id;
+  $("itemName").value = item.name || "";
+  $("itemCategory").value = item.category || "Другое";
+  $("itemColor").value = item.color || "";
+  $("itemSeason").value = item.season || "Всесезонная";
+  $("itemStyle").value = item.style || "";
+  $("itemPrice").value = item.price ?? "";
+  $("formTitle").textContent = "Редактировать вещь";
+  $("saveBtn").textContent = "Сохранить изменения";
+  $("cancelEdit").classList.remove("hidden");
+  $("itemForm").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function toggleFavorite(id) {
+  const item = items.find(x => x.id === id);
+  if (!item) return;
+  const { error } = await sb.from("wardrobe_items")
+    .update({ is_favorite: !item.is_favorite })
+    .eq("id", id).eq("user_id", currentUser.id);
+  if (error) {
+    setStatus("Не удалось изменить избранное: " + error.message);
+    return;
+  }
+  await refreshItems();
+}
+
+async function removeItem(id) {
+  const item = items.find(x => x.id === id);
+  if (!item || !confirm(`Удалить «${item.name}» из гардероба?`)) return;
+
+  const { error } = await sb.from("wardrobe_items")
+    .delete().eq("id", id).eq("user_id", currentUser.id);
+
+  if (error) {
+    setStatus("Не удалось удалить вещь: " + error.message);
+    return;
+  }
+  if (item.image_path) await deletePhoto(item.image_path);
+  await refreshItems();
+  setStatus("Вещь удалена.");
+}
+
+function makeCard(item) {
+  const card = document.createElement("article");
+  card.className = "card";
+
+  if (item.photoUrl) {
+    const img = document.createElement("img");
+    img.className = "photo";
+    img.src = item.photoUrl;
+    img.alt = item.name;
+    card.appendChild(img);
   } else {
-    result += "<p>Попробуй сочетать:</p><ul>" + outfit.map(x =>
-      `<li>${esc(x.name)}${x.color ? " — " + esc(x.color) : ""}</li>`).join("") + "</ul>";
-    result += "<p>Совет: начни с одного основного цвета и добавь максимум один выразительный акцент — например, золото или бордовый.</p>";
+    const placeholder = document.createElement("div");
+    placeholder.className = "photo";
+    placeholder.style.display = "grid";
+    placeholder.style.placeItems = "center";
+    placeholder.style.color = "var(--muted)";
+    placeholder.textContent = "MON CHER";
+    card.appendChild(placeholder);
   }
-  $("suggestion").innerHTML = result;
-  advicePrompt = `Ты мой персональный стилист. Предложи 3 гармоничных образа для случая: ${occasion}. Настроение: ${mood}. Используй только вещи из моего списка, не выдумывай отсутствующие вещи. Мой гардероб: ${clothes.map(x => `${x.name}, категория ${x.category}, цвет ${x.color || "не указан"}, стиль ${x.style}, сезон ${x.season}`).join("; ")}. Объясни сочетания цветов и предложи, чего не хватает для более универсального гардероба. Отвечай по-русски.`;
-  $("copyPrompt").classList.toggle("hidden", clothes.length === 0);
-});
-$("copyPrompt").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(advicePrompt);
-    $("suggestion").insertAdjacentHTML("beforeend",
-      '<p class="muted">Запрос скопирован. Открой ChatGPT и вставь его в чат.</p>');
-  } catch {
-    prompt("Скопируй этот запрос и вставь в ChatGPT:", advicePrompt);
+
+  const body = document.createElement("div");
+  body.className = "cardbody";
+  const title = document.createElement("h3");
+  title.textContent = item.name;
+  body.appendChild(title);
+
+  const tags = document.createElement("div");
+  [item.category, item.color, item.season, item.style].filter(Boolean).forEach(value => {
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = value;
+    tags.appendChild(tag);
+  });
+  body.appendChild(tags);
+
+  if (item.price !== null && item.price !== undefined) {
+    const price = document.createElement("p");
+    price.className = "muted";
+    price.textContent = `${Number(item.price).toLocaleString("ru-RU")} ₸`;
+    body.appendChild(price);
   }
+
+  const actions = document.createElement("div");
+  actions.className = "actions";
+
+  const fav = document.createElement("button");
+  fav.className = "secondary";
+  fav.textContent = item.is_favorite ? "♥ Избранное" : "♡ В избранное";
+  fav.addEventListener("click", () => toggleFavorite(item.id));
+
+  const edit = document.createElement("button");
+  edit.className = "secondary";
+  edit.textContent = "Изменить";
+  edit.addEventListener("click", () => editItem(item.id));
+
+  const del = document.createElement("button");
+  del.className = "danger";
+  del.textContent = "Удалить";
+  del.addEventListener("click", () => removeItem(item.id));
+
+  actions.append(fav, edit, del);
+  body.appendChild(actions);
+  card.appendChild(body);
+  return card;
+}
+
+function renderItems() {
+  const container = $("wardrobe");
+  container.replaceChildren();
+
+  const query = $("search").value.trim().toLowerCase();
+  const category = $("filterCategory").value;
+  const season = $("filterSeason").value;
+
+  const filtered = items.filter(item => {
+    const searchable = [item.name, item.color, item.style, item.category, item.season]
+      .filter(Boolean).join(" ").toLowerCase();
+    return searchable.includes(query)
+      && (!category || item.category === category)
+      && (!season || item.season === season);
+  });
+
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.style.gridColumn = "1 / -1";
+    empty.textContent = items.length ? "По этому запросу ничего не найдено." : "Здесь пока нет вещей. Добавь первую вещь выше.";
+    container.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach(item => container.appendChild(makeCard(item)));
+}
+
+$("search").addEventListener("input", renderItems);
+$("filterCategory").addEventListener("change", renderItems);
+$("filterSeason").addEventListener("change", renderItems);
+
+$("outfitBtn").addEventListener("click", () => {
+  const result = $("outfitResult");
+  result.replaceChildren();
+
+  if (!items.length) {
+    result.textContent = "Сначала добавь несколько вещей в гардероб.";
+    return;
+  }
+
+  const shuffled = [...items].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, Math.min(3, shuffled.length));
+  selected.forEach(item => result.appendChild(makeCard(item)));
 });
 
-$("export").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify({
-    app:"MON CHER",version:1,exportedAt:new Date().toISOString(),clothes
-  },null,2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "mon-cher-backup.json"; a.click();
-  URL.revokeObjectURL(url);
-  $("backupmessage").textContent = "Резервная копия подготовлена. Сохрани файл в надёжном месте.";
-});
-$("importbtn").addEventListener("click", () => $("importfile").click());
-$("importfile").addEventListener("change", async () => {
-  const file = $("importfile").files[0];
-  if (!file) return;
-  try {
-    const data = JSON.parse(await file.text());
-    const imported = Array.isArray(data) ? data : data.clothes;
-    if (!Array.isArray(imported) || !imported.every(x =>
-      x && typeof x.name === "string" && typeof x.id === "string")) {
-      throw new Error("Неверный формат");
-    }
-    if (!confirm("Восстановить копию? Текущий список вещей будет заменён.")) return;
-    const old = clothes;
-    clothes = imported;
-    if (!save()) clothes = old;
-    render();
-    $("backupmessage").textContent = "Импорт завершён.";
-  } catch {
-    $("backupmessage").textContent = "Не удалось прочитать копию. Проверь, что выбрала файл MON CHER.";
-  } finally { $("importfile").value = ""; }
-});
-render();
+(async function init() {
+  const { data, error } = await sb.auth.getSession();
+  if (error) setStatus(error.message, true);
+  if (data.session?.user) await activateUser(data.session.user);
+  else showAuth();
+})();
 </script>
 </body>
 </html>
+
+
+
